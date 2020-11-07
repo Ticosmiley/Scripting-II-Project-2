@@ -5,74 +5,67 @@ using TMPro;
 
 public class PlayerHandView : MonoBehaviour
 {
-    AbilityCardView _acView;
     [SerializeField] DeckTester _tester;
+    [SerializeField] GameObject _cardObject;
+    [SerializeField] GameObject _cardUI;
+    [SerializeField] GameObject _canvas;
 
-    TextMeshProUGUI _cardsInHand;
+    Deck<AbilityCard> _playerHand;
 
-    int _currentCardIndex = 0;
-
-    public int CurrentCardIndex { get { return _currentCardIndex; } }
+    [SerializeField] Transform[] _cardSlots;
+    public bool[] _slotsFilled = new bool[] { false, false, false, false, false };
+    public List<GameObject> _cardObjects = new List<GameObject>();
+    public List<AbilityCardView> _cardViews = new List<AbilityCardView>();
 
     private void Awake()
     {
-        _acView = GetComponentInChildren<AbilityCardView>();
-        _acView.gameObject.SetActive(false);
-        _cardsInHand = transform.GetChild(1).GetComponent<TextMeshProUGUI>();
+        _playerHand = _tester.PlayerHand;
     }
 
-    public void Display(AbilityCard card, int index)
+    public void AddCard(AbilityCard card)
     {
-        _acView.gameObject.SetActive(true);
-        _currentCardIndex = index;
-        _acView.Display(card);
-        _cardsInHand.text = "Cards in Hand: " + _tester.PlayerHand.Count;
-    }
+        GameObject newCard = Instantiate(_cardObject);
+        AbilityCardView newACView = Instantiate(_cardUI).GetComponent<AbilityCardView>();
+        newACView.transform.SetParent(_canvas.transform, false);
+        newACView.Display(card, newCard.transform);
 
-    public void Next()
-    {
-        if (!CheckIfEmpty())
+
+        for (int i = 0; i < 5; i++)
         {
-            if (_currentCardIndex + 1 < _tester.PlayerHand.Count)
+            if (!_slotsFilled[i])
             {
-                _currentCardIndex++;
+                newCard.transform.position = _cardSlots[i].position;
+                newCard.GetComponent<CardObject>().Setup(card, i);
+                _cardObjects.Add(newCard);
+                _cardViews.Add(newACView);
+                _slotsFilled[i] = true;
+                break;
             }
-            else
-            {
-                _currentCardIndex = 0;
-            }
-            _acView.Display(_tester.PlayerHand.GetCard(_currentCardIndex));
         }
-        _cardsInHand.text = "Cards in Hand: " + _tester.PlayerHand.Count;
     }
 
-    public void Prev()
+    public void RemoveCard(int index)
     {
-        if (!CheckIfEmpty())
-        {
-            if (_currentCardIndex - 1 >= 0)
-            {
-                _currentCardIndex--;
-            }
-            else
-            {
-                _currentCardIndex = _tester.PlayerHand.Count - 1;
-            }
-            _acView.Display(_tester.PlayerHand.GetCard(_currentCardIndex));
-        }
-        _cardsInHand.text = "Cards in Hand: " + _tester.PlayerHand.Count;
-    }
+        Destroy(_cardObjects[index]);
+        _cardObjects.RemoveAt(index);
+        Destroy(_cardViews[index].gameObject);
+        _cardViews.RemoveAt(index);
+        _slotsFilled[index] = false;
 
-    bool CheckIfEmpty()
-    {
-        if (_tester.PlayerHand.IsEmpty)
-        {
-            _acView.gameObject.SetActive(false);
-            return true;
+        for (int i = 0; i < _cardObjects.Count; i++)
+        { 
+            CardObject obj = _cardObjects[i].GetComponent<CardObject>();
+            obj.Setup(obj.Card, i);
+            obj.transform.position = _cardSlots[i].position;
+            _slotsFilled[i] = true;
         }
-        else
+
+        for (int i = 0; i < 5; i++)
         {
-            return false;
+            if (i > _cardObjects.Count - 1)
+            {
+                _slotsFilled[i] = false;
+            }
         }
     }
 }

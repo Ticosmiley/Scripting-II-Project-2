@@ -12,7 +12,7 @@ public class Creature : MonoBehaviour, ITargetable, IDamageable
 
     [SerializeField] CreatureData _data;
 
-    private void Start()
+    private void Awake()
     {
         Name = _data.Name;
         MaxHealth = _data.MaxHealth;

@@ -1,10 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class DeckTester : MonoBehaviour
 {
-    [SerializeField] List<AbilityCardData> _abilityDeckConfig = new List<AbilityCardData>();
+    public List<AbilityCardData> _abilityDeckConfig = new List<AbilityCardData>();
 
     Deck<AbilityCard> _abilityDeck = new Deck<AbilityCard>();
     Deck<AbilityCard> _abilityDiscard = new Deck<AbilityCard>();
@@ -13,33 +14,26 @@ public class DeckTester : MonoBehaviour
 
     [SerializeField] PlayerHandView _playerHandView;
 
+    public int currentCard;
+
     public Deck<AbilityCard> PlayerHand { get { return _playerHand; } }
     public Deck<AbilityCard> AbilityDeck { get { return _abilityDeck; } }
     public Deck<AbilityCard> AbilityDiscard { get { return _abilityDiscard; } }
 
-    private void Start()
-    {
-        SetupAbilityDeck();
-    }
-
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Q))
+        if (Input.GetKeyDown(KeyCode.Escape))
         {
-            Draw();
-        }
-        if (Input.GetKeyDown(KeyCode.W))
-        {
-            PrintPlayerHand();
-        }
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            PlayCard();
+            Application.Quit();
         }
     }
 
-    private void SetupAbilityDeck()
+    public void SetupAbilityDeck()
     {
+        _playerHand.Clear();
+        _abilityDiscard.Clear();
+        _abilityDeck.Clear();
+
         foreach (AbilityCardData abilityData in _abilityDeckConfig)
         {
             AbilityCard newAbilityCard = new AbilityCard(abilityData);
@@ -66,8 +60,7 @@ public class DeckTester : MonoBehaviour
         if (_playerHand.Count < 5)
         {
             _playerHand.Add(newCard, DeckPosition.Top);
-
-            _playerHandView.Display(newCard, _playerHand.Count - 1);
+            _playerHandView.AddCard(newCard);
         }
         else
         {
@@ -86,11 +79,27 @@ public class DeckTester : MonoBehaviour
 
     public void PlayCard()
     {
-        AbilityCard targetCard = _playerHand.GetCard(_playerHandView.CurrentCardIndex);
-        targetCard.Play();
-        _playerHand.Remove(_playerHandView.CurrentCardIndex);
-        _abilityDiscard.Add(targetCard);
-        _playerHandView.Next();
-        Debug.Log("Card added to discard: " + targetCard.Name);
+        if (TargetController.CurrentTarget != null)
+        {
+            AbilityCard targetCard = _playerHand.GetCard(currentCard);
+            if (targetCard.Cost <= Player.instance.currentMana)
+            {
+                    
+                _playerHandView.RemoveCard(currentCard);
+                _playerHand.Remove(currentCard);
+                _abilityDiscard.Add(targetCard);
+                Player.instance.currentMana -= targetCard.Cost;
+                targetCard.Play();
+                Debug.Log("Card added to discard: " + targetCard.Name);
+            }
+            else
+            {
+                Debug.Log("Insufficient mana");
+            }
+        }
+        else
+        {
+            Debug.Log("No target selected");
+        }
     }
 }

@@ -5,20 +5,13 @@ using UnityEngine;
 public class TargetController : MonoBehaviour
 {
     public static ITargetable CurrentTarget;
-
-    [SerializeField] Creature _objectToTarget = null;
+    public static ITargetable EnemyTarget;
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Alpha1))
+        if (StateMachine.CurrentState.GetComponent<PlayerTurnCardGameState>() == null)
         {
-            ITargetable possibleTarget = _objectToTarget.GetComponent<ITargetable>();
-            if (possibleTarget != null)
-            {
-                Debug.Log("New target acquired!");
-                CurrentTarget = possibleTarget;
-                _objectToTarget.Target();
-            }
+            CurrentTarget = null;
         }
     }
 }

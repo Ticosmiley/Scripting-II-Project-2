@@ -15,6 +15,7 @@ public class SpawnPlayEffect : CardEffect
         {
             Vector3 spawnLocation = worldObject.transform.position;
             GameObject newGameObject = Instantiate(_prefabToSpawn, spawnLocation, Quaternion.identity);
+            SpawnManager.instance.AddSpawn(newGameObject);
             Debug.Log("Spawn new object: " + newGameObject.name);
         }
         else

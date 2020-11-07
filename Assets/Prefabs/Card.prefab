@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &5708853460198828789
+--- !u!1 &5263407705018022002
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,39 +8,47 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 8864600163871412988}
-  - component: {fileID: 6023234357519974400}
-  - component: {fileID: -2283237782190336610}
-  - component: {fileID: 8133199228838617780}
-  - component: {fileID: 6620160817175507700}
+  - component: {fileID: 5263407705018022001}
+  - component: {fileID: 5263407705018022000}
+  - component: {fileID: 5263407705018022003}
+  - component: {fileID: 1734729367184498476}
+  - component: {fileID: 8748427250390688753}
   m_Layer: 0
-  m_Name: Chillwind Yeti Spawn
+  m_Name: Card
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &8864600163871412988
+--- !u!4 &5263407705018022001
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5708853460198828789}
+  m_GameObject: {fileID: 5263407705018022002}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.3, y: 1.9, z: 0.029894}
+  m_LocalScale: {x: 1.3036778, y: 1.8502, z: 0.10322483}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!23 &6023234357519974400
+--- !u!33 &5263407705018022000
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5263407705018022002}
+  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!23 &5263407705018022003
 MeshRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5708853460198828789}
+  m_GameObject: {fileID: 5263407705018022002}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
@@ -72,34 +80,25 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!114 &-2283237782190336610
+--- !u!114 &1734729367184498476
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5708853460198828789}
+  m_GameObject: {fileID: 5263407705018022002}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a7c60d918eb4e2c44b5de2cdcd3572aa, type: 3}
+  m_Script: {fileID: 11500000, guid: 0152b732d39fba443997863a60d883ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _data: {fileID: 11400000, guid: 449c63273de93a94eaf2c049be9444e1, type: 2}
---- !u!33 &8133199228838617780
-MeshFilter:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5708853460198828789}
-  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!65 &6620160817175507700
+--- !u!65 &8748427250390688753
 BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5708853460198828789}
+  m_GameObject: {fileID: 5263407705018022002}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1
