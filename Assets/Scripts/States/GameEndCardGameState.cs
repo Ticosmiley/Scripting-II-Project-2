@@ -42,6 +42,16 @@ public class GameEndCardGameState : CardGameState
             Destroy(item.gameObject);
         }
         _spawnManager._friendlySpawnViews.Clear();
+        foreach (var item in _spawnManager.enemySpawns)
+        {
+            Destroy(item);
+        }
+        _spawnManager.enemySpawns.Clear();
+        foreach (var item in _spawnManager._enemySpawnViews)
+        {
+            Destroy(item.gameObject);
+        }
+        _spawnManager._enemySpawnViews.Clear();
     }
 
     public override void Tick()

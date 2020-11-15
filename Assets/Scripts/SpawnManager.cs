@@ -88,7 +88,7 @@ public class SpawnManager : MonoBehaviour
 
             for (int i = 0; i < 5; i++)
             {
-                if (i > friendlySpawns.Count)
+                if (i > friendlySpawns.Count - 1)
                     _friendlySlotsFilled[i] = false;
             }
         }
@@ -110,7 +110,7 @@ public class SpawnManager : MonoBehaviour
 
             for (int i = 0; i < 5; i++)
             {
-                if (i > enemySpawns.Count)
+                if (i > enemySpawns.Count - 1)
                     _enemySlotsFilled[i] = false;
             }
         }
