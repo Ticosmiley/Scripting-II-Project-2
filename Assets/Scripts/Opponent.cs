@@ -8,6 +8,9 @@ public class Opponent : MonoBehaviour, ITargetable, IDamageable
     [SerializeField] int _maxHealth;
     int _currentHealth;
 
+    public int maxMana = 0;
+    public int currentMana = 0;
+
     public int MaxHealth { get { return _maxHealth; } }
     public int CurrentHealth { get { return _currentHealth; } }
 
@@ -55,5 +58,10 @@ public class Opponent : MonoBehaviour, ITargetable, IDamageable
     public void Reset()
     {
         _currentHealth = _maxHealth;
+    }
+
+    public bool IsEnemy()
+    {
+        return true;
     }
 }

@@ -25,5 +25,12 @@ public class SpawnView : MonoBehaviour
         _name.text = creature.Name;
         _attack.text = "Attack: " + creature.Attack;
         _health.text = "Health: " + creature.CurrentHealth + "/" + creature.MaxHealth;
+
+        _creature.OnTakeDamage += UpdateHealth;
+    }
+
+    public void UpdateHealth(Creature creature)
+    {
+        _health.text = "Health: " + creature.CurrentHealth + "/" + creature.MaxHealth;
     }
 }

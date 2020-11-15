@@ -13,6 +13,8 @@ public class DeckTester : MonoBehaviour
     Deck<AbilityCard> _playerHand = new Deck<AbilityCard>();
 
     [SerializeField] PlayerHandView _playerHandView;
+    [SerializeField] SpawnManager _spawnManager;
+    [SerializeField] PlayerTurnCardGameState _playerTurnState;
 
     public int currentCard;
 
@@ -79,27 +81,64 @@ public class DeckTester : MonoBehaviour
 
     public void PlayCard()
     {
-        if (TargetController.CurrentTarget != null)
+        TargetController.CurrentTarget = null;
+        AbilityCard targetCard = _playerHand.GetCard(currentCard);
+        if (targetCard.Cost <= Player.instance.currentMana)
         {
-            AbilityCard targetCard = _playerHand.GetCard(currentCard);
-            if (targetCard.Cost <= Player.instance.currentMana)
-            {
-                    
-                _playerHandView.RemoveCard(currentCard);
-                _playerHand.Remove(currentCard);
-                _abilityDiscard.Add(targetCard);
-                Player.instance.currentMana -= targetCard.Cost;
-                targetCard.Play();
-                Debug.Log("Card added to discard: " + targetCard.Name);
-            }
-            else
-            {
-                Debug.Log("Insufficient mana");
-            }
+            Debug.Log("Select a target");
+            _playerTurnState.targeting = true;
+            StartCoroutine(PlayCardOnTarget(targetCard));
         }
         else
         {
-            Debug.Log("No target selected");
+            Debug.Log("Insufficient mana");
         }
+    }
+
+    IEnumerator WaitForTarget()
+    {
+        while(TargetController.CurrentTarget == null)
+        {
+            yield return null;
+        }
+    }
+
+    IEnumerator PlayCardOnTarget(AbilityCard card)
+    {
+        yield return StartCoroutine(WaitForTarget());
+
+        SpawnPlayEffect spawnEffect = card.CardEffect as SpawnPlayEffect;
+        if (spawnEffect != null)
+        {
+            if (_spawnManager.friendlySpawns.Count < 5)
+            {
+                PlayerTable pTable = TargetController.CurrentTarget as PlayerTable;
+                if (pTable != null)
+                {
+                    _playerHandView.RemoveCard(currentCard);
+                    _playerHand.Remove(currentCard);
+                    _abilityDiscard.Add(card);
+                    Player.instance.currentMana -= card.Cost;
+                    card.Play();
+                    Debug.Log("Card added to discard: " + card.Name);
+                }
+                else
+                    Debug.Log("Invalid target");
+            }
+            else
+                Debug.Log("Board is full.");
+        }
+
+        DamagePlayEffect damageEffect = card.CardEffect as DamagePlayEffect;
+        if (damageEffect != null)
+        {
+            _playerHandView.RemoveCard(currentCard);
+            _playerHand.Remove(currentCard);
+            _abilityDiscard.Add(card);
+            Player.instance.currentMana -= card.Cost;
+            card.Play();
+            Debug.Log("Card added to discard: " + card.Name);
+        }
+        _playerTurnState.targeting = false;
     }
 }

@@ -8,4 +8,6 @@ public interface IDamageable
     void Kill();
 
     void Heal(int healAmount);
+
+    bool IsEnemy();
 }

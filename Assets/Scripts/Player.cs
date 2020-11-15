@@ -60,4 +60,9 @@ public class Player : MonoBehaviour, ITargetable, IDamageable
         maxMana = 0;
         currentMana = 0;
     }
+
+    public bool IsEnemy()
+    {
+        return false;
+    }
 }

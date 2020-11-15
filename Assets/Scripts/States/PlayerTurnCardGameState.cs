@@ -1,14 +1,14 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using TMPro;
 using UnityEngine;
-using TMPro;
 
 public class PlayerTurnCardGameState : CardGameState
 {
     [SerializeField] TextMeshProUGUI _playerTurnTextUI = null;
     [SerializeField] DeckTester _tester;
+    [SerializeField] SpawnManager _spawnManager;
 
-    int _playerTurnCount = 0;
+    public int playerTurnCount = 0;
+    public bool targeting = false;
 
     public override void Enter()
     {
@@ -17,11 +17,16 @@ public class PlayerTurnCardGameState : CardGameState
 
         _tester.Draw();
 
+        foreach (var creature in _spawnManager.friendlySpawns)
+        {
+            creature.GetComponent<Creature>().canAttack = true;
+        }
+
         Player.instance.maxMana++;
         Player.instance.currentMana = Player.instance.maxMana;
 
-        _playerTurnCount++;
-        _playerTurnTextUI.text = "Player Turn: " + _playerTurnCount.ToString();
+        playerTurnCount++;
+        _playerTurnTextUI.text = "Player Turn: " + playerTurnCount.ToString();
 
         StateMachine.Input.PressedConfirm += OnPressedConfirm;
         Player.instance.OnPlayerDeath += OnPlayerDeath;
@@ -36,7 +41,7 @@ public class PlayerTurnCardGameState : CardGameState
             if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit))
             {
                 CardObject card = hit.collider.gameObject.GetComponent<CardObject>();
-                if (card != null)
+                if (card != null && !targeting)
                 {
                     Debug.Log("Playing card " + card.Card.Name);
                     _tester.currentCard = card.Index;
@@ -48,6 +53,13 @@ public class PlayerTurnCardGameState : CardGameState
                 {
                     Debug.Log("Current target is " + target.ToString());
                     TargetController.CurrentTarget = target;
+                }
+
+                Creature creature = hit.collider.gameObject.GetComponent<Creature>();
+                if (creature != null && !creature.isEnemy && !targeting)
+                {
+                    Debug.Log(creature.name + " selected");
+                    _spawnManager.CreatureAttack(creature.boardIndex);
                 }
             }
         }

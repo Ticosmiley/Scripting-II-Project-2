@@ -15,11 +15,12 @@ public class GameEndCardGameState : CardGameState
         _gameVisuals.SetActive(false);
         Opponent.instance.gameObject.SetActive(false);
         Player.instance.gameObject.SetActive(false);
+        GetComponent<PlayerTurnCardGameState>().playerTurnCount = 0;
 
         for (int i = 0; i < 5; i++)
         {
             _playerHandView._slotsFilled[i] = false;
-            _spawnManager._slotsFilled[i] = false;
+            _spawnManager._friendlySlotsFilled[i] = false;
         }
         foreach (var item in _playerHandView._cardObjects)
         {
@@ -31,28 +32,26 @@ public class GameEndCardGameState : CardGameState
             Destroy(item.gameObject);
         }
         _playerHandView._cardViews.Clear();
-        foreach (var item in _spawnManager._friendlySpawns)
+        foreach (var item in _spawnManager.friendlySpawns)
         {
             Destroy(item);
         }
-        _spawnManager._friendlySpawns.Clear();
-        foreach (var item in _spawnManager._spawnViews)
+        _spawnManager.friendlySpawns.Clear();
+        foreach (var item in _spawnManager._friendlySpawnViews)
         {
             Destroy(item.gameObject);
         }
-        _spawnManager._spawnViews.Clear();
+        _spawnManager._friendlySpawnViews.Clear();
     }
 
     public override void Tick()
     {
         if (Player.instance.CurrentHealth <= 0)
         {
-            Debug.Log("Lose");
             StateMachine.ChangeState<LoseCardGameState>();
         }
         else
         {
-            Debug.Log("Win");
             StateMachine.ChangeState<WinCardGameState>();
         }
     }

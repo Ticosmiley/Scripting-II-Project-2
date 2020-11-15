@@ -8,6 +8,8 @@ public class EnemyTurnCardGameState : CardGameState
     public static event Action EnemyTurnBegan;
     public static event Action EnemyTurnEnded;
 
+    [SerializeField] EnemyDeckTester _tester;
+    [SerializeField] SpawnManager _spawnManager;
     [SerializeField] float _pauseDuration = 1.5f;
     
     public override void Enter()
@@ -17,6 +19,16 @@ public class EnemyTurnCardGameState : CardGameState
 
         Debug.Log("Enemy Turn: ...Enter");
         EnemyTurnBegan?.Invoke();
+
+        _tester.Draw();
+
+        foreach (var creature in _spawnManager.enemySpawns)
+        {
+            creature.GetComponent<Creature>().canAttack = true;
+        }
+
+        Opponent.instance.maxMana++;
+        Opponent.instance.currentMana = Opponent.instance.maxMana;
 
         StartCoroutine(EnemyThinkingRoutine(_pauseDuration));
     }
@@ -35,10 +47,9 @@ public class EnemyTurnCardGameState : CardGameState
         Debug.Log("Enemy thinking...");
         yield return new WaitForSeconds(pauseDuration);
 
-        TargetController.EnemyTarget = Player.instance;
-        Player.instance.TakeDamage(1);
+        yield return StartCoroutine(_tester.PlayCards());
+        yield return StartCoroutine(_spawnManager.EnemyAttacks());
 
-        Debug.Log("Enemy attacks players for 3 damage!");
         EnemyTurnEnded?.Invoke();
 
         StateMachine.ChangeState<PlayerTurnCardGameState>();

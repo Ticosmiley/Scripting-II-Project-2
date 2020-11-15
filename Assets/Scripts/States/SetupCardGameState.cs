@@ -10,6 +10,7 @@ public class SetupCardGameState : CardGameState
 
     [SerializeField] List<AbilityCardData> _abilityCards = new List<AbilityCardData>();
     [SerializeField] DeckTester _tester;
+    [SerializeField] EnemyDeckTester _enemyTester;
 
     [SerializeField] GameObject _gameVisuals;
  
@@ -28,17 +29,21 @@ public class SetupCardGameState : CardGameState
         
 
         _tester._abilityDeckConfig.Clear();
+        _enemyTester._abilityDeckConfig.Clear();
 
         for (int i = 0; i < _startingCardNumber; i++)
         {
             _tester._abilityDeckConfig.Add(_abilityCards[Random.Range(0, _abilityCards.Count)]);
+            _enemyTester._abilityDeckConfig.Add(_abilityCards[Random.Range(0, _abilityCards.Count)]);
         }
 
         _tester.SetupAbilityDeck();
+        _enemyTester.SetupAbilityDeck();
 
         for (int i = 0; i < _startingHandSize; i++)
         {
             _tester.Draw();
+            _enemyTester.Draw();
         }
 
         _gameVisuals.SetActive(true);

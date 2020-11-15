@@ -1,14 +1,21 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class Creature : MonoBehaviour, ITargetable, IDamageable
 {
+    public event Action<Creature> OnDeath = delegate { };
+    public event Action<Creature> OnTakeDamage = delegate { };
+
     public string Name { get; private set; }
     public int CurrentHealth { get; private set; }
     public int MaxHealth { get; private set; }
     public int Attack { get; private set; }
     public CreatureEffect Effect { get; private set; }
+    public int boardIndex;
+    public bool isEnemy = false;
+    public bool canAttack = false;
 
     [SerializeField] CreatureData _data;
 
@@ -29,14 +36,16 @@ public class Creature : MonoBehaviour, ITargetable, IDamageable
 
     public void Kill()
     {
+        OnDeath?.Invoke(this);
         Debug.Log("Kill the creature!");
-        gameObject.SetActive(false);
+        //gameObject.SetActive(false);
     }
 
     public virtual void TakeDamage(int damage)
     {
         CurrentHealth -= damage;
         Debug.Log("Took " + damage + " damage. Remaining health: " + CurrentHealth);
+        OnTakeDamage?.Invoke(this);
         if (CurrentHealth <= 0)
         {
             Kill();
@@ -73,5 +82,10 @@ public class Creature : MonoBehaviour, ITargetable, IDamageable
     public void Target()
     {
         Debug.Log("Creature has been targeted.");
+    }
+
+    public bool IsEnemy()
+    {
+        return isEnemy;
     }
 }
