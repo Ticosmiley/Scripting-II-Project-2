@@ -15,6 +15,8 @@ public class DeckTester : MonoBehaviour
     [SerializeField] PlayerHandView _playerHandView;
     [SerializeField] SpawnManager _spawnManager;
     [SerializeField] PlayerTurnCardGameState _playerTurnState;
+    [SerializeField] AudioSource _drawSound;
+    [SerializeField] AudioSource _playSound;
 
     public int currentCard;
 
@@ -47,6 +49,8 @@ public class DeckTester : MonoBehaviour
 
     public void Draw()
     {
+        _drawSound.Play();
+
         if (_abilityDeck.IsEmpty)
         {
             while (!_abilityDiscard.IsEmpty)
@@ -58,6 +62,7 @@ public class DeckTester : MonoBehaviour
         }
 
         AbilityCard newCard = _abilityDeck.Draw(DeckPosition.Top);
+        newCard.Played = false;
         Debug.Log("Drew card: " + newCard.Name);
         if (_playerHand.Count < 5)
         {
@@ -87,6 +92,11 @@ public class DeckTester : MonoBehaviour
         {
             Debug.Log("Select a target");
             _playerTurnState.targeting = true;
+            DamagePlayEffect damageEffect = targetCard.CardEffect as DamagePlayEffect;
+            if (damageEffect != null)
+            {
+                _playerTurnState.targetingAttack = true;
+            }
             StartCoroutine(PlayCardOnTarget(targetCard));
         }
         else
@@ -115,8 +125,10 @@ public class DeckTester : MonoBehaviour
                 PlayerTable pTable = TargetController.CurrentTarget as PlayerTable;
                 if (pTable != null)
                 {
-                    _playerHandView.RemoveCard(currentCard);
+                    card.Played = true;
+                    _playSound.Play();
                     _playerHand.Remove(currentCard);
+                    StartCoroutine(_playerHandView.RemoveCard(currentCard));
                     _abilityDiscard.Add(card);
                     Player.instance.currentMana -= card.Cost;
                     card.Play();
@@ -132,13 +144,35 @@ public class DeckTester : MonoBehaviour
         DamagePlayEffect damageEffect = card.CardEffect as DamagePlayEffect;
         if (damageEffect != null)
         {
-            _playerHandView.RemoveCard(currentCard);
+            IDamageable enemy = TargetController.CurrentTarget as IDamageable;
+            if (enemy != null)
+            {
+                card.Played = true;
+                _playSound.Play();
+                _playerHand.Remove(currentCard);
+                StartCoroutine(_playerHandView.RemoveCard(currentCard));
+                _abilityDiscard.Add(card);
+                Player.instance.currentMana -= card.Cost;
+                card.Play();
+                Debug.Log("Card added to discard: " + card.Name);
+            }
+            else
+                Debug.Log("Invalid target");
+        }
+
+        DrawPlayEffect drawEffect = card.CardEffect as DrawPlayEffect;
+        if (drawEffect != null)
+        {
+            card.Played = true;
+            _playSound.Play();
             _playerHand.Remove(currentCard);
+            yield return StartCoroutine(_playerHandView.RemoveCard(currentCard));
             _abilityDiscard.Add(card);
             Player.instance.currentMana -= card.Cost;
             card.Play();
             Debug.Log("Card added to discard: " + card.Name);
         }
         _playerTurnState.targeting = false;
+        _playerTurnState.targetingAttack = false;
     }
 }

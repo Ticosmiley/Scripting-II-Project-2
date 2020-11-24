@@ -7,6 +7,8 @@ public class AbilityCard : Card
     public int Cost { get; private set; }
     public Sprite Graphic { get; private set; }
     public CardEffect CardEffect { get; private set; }
+    public string Description { get; private set; }
+    public bool Played { get; set; } = false;
 
     public AbilityCard(AbilityCardData Data)
     {
@@ -14,6 +16,7 @@ public class AbilityCard : Card
         Cost = Data.Cost;
         Graphic = Data.Graphic;
         CardEffect = Data.CardEffect;
+        Description = Data.Description;
     }
 
     public override void Play()

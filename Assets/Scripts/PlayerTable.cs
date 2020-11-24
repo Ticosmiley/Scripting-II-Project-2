@@ -8,4 +8,9 @@ public class PlayerTable : MonoBehaviour, ITargetable
     {
         TargetController.CurrentTarget = this as ITargetable;
     }
+
+    public Vector3 GetPosition()
+    {
+        return transform.position;
+    }
 }

@@ -83,6 +83,17 @@ public class EnemyDeckTester : MonoBehaviour
                     targetCard.Play();
                     Debug.Log("Enemy played " + targetCard.Name);
                 }
+
+                DrawPlayEffect drawEffect = targetCard.CardEffect as DrawPlayEffect;
+                if (drawEffect != null)
+                {
+                    _enemyHand.Remove(i);
+                    _abilityDiscard.Add(targetCard);
+                    Opponent.instance.currentMana -= targetCard.Cost;
+                    TargetController.CurrentTarget = Player.instance as ITargetable;
+                    targetCard.Play();
+                    Debug.Log("Enemy played " + targetCard.Name);
+                }
             }
 
             yield return new WaitForSeconds(1.5f);

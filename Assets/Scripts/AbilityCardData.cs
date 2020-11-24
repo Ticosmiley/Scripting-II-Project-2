@@ -16,4 +16,7 @@ public class AbilityCardData : ScriptableObject
 
     [SerializeField] CardEffect _cardEffect = null;
     public CardEffect CardEffect => _cardEffect;
+
+    [SerializeField] string _description = null;
+    public string Description => _description;
 }

@@ -16,11 +16,19 @@ public class Creature : MonoBehaviour, ITargetable, IDamageable
     public int boardIndex;
     public bool isEnemy = false;
     public bool canAttack = false;
+    bool _selected;
+
+    public bool Selected { get { return _selected; } set { _selected = value; } }
+
+    RaycastHit hit;
+    PlayerTurnCardGameState _playerTurn;
 
     [SerializeField] CreatureData _data;
 
     private void Awake()
     {
+        _playerTurn = FindObjectOfType<PlayerTurnCardGameState>();
+
         Name = _data.Name;
         MaxHealth = _data.MaxHealth;
         CurrentHealth = MaxHealth;
@@ -31,6 +39,29 @@ public class Creature : MonoBehaviour, ITargetable, IDamageable
         {
             ITargetable target = TargetController.CurrentTarget;
             Effect.Activate(target);
+        }
+    }
+
+    private void Update()
+    {
+        if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit))
+        {
+            if (hit.collider.gameObject.GetComponent<Creature>() == this && !(_playerTurn.targeting || _playerTurn.targetingAttack) && canAttack && !isEnemy)
+            {
+                _selected = true;
+            }
+            else if(hit.collider.gameObject.GetComponent<Creature>() == this && _playerTurn.targetingAttack && isEnemy)
+            {
+                _selected = true;
+            }
+            else
+            {
+                _selected = false;
+            }
+        }
+        else
+        {
+            _selected = false;
         }
     }
 
@@ -87,5 +118,10 @@ public class Creature : MonoBehaviour, ITargetable, IDamageable
     public bool IsEnemy()
     {
         return isEnemy;
+    }
+
+    public Vector3 GetPosition()
+    {
+        return transform.position;
     }
 }

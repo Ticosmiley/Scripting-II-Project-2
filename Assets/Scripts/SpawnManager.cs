@@ -18,11 +18,14 @@ public class SpawnManager : MonoBehaviour
     [SerializeField] GameObject _canvas;
     [SerializeField] PlayerTurnCardGameState _playerTurnState;
 
+    AudioSource _audioSource;
+
     public static SpawnManager instance;
 
     private void Awake()
     {
         instance = this;
+        _audioSource = GetComponent<AudioSource>();
     }
 
     public void AddSpawn(GameObject spawn, bool isEnemy)
@@ -39,7 +42,7 @@ public class SpawnManager : MonoBehaviour
             {
                 if (!_friendlySlotsFilled[i])
                 {
-                    spawn.transform.position = _friendlySpawnSlots[i].position;
+                    StartCoroutine(MoveCreature(spawn, _friendlySpawnSlots[i].position, 180));
                     spawn.GetComponent<Creature>().boardIndex = i;
                     spawn.GetComponent<Creature>().OnDeath += OnCreatureDeath;
                     friendlySpawns.Add(spawn);
@@ -56,7 +59,7 @@ public class SpawnManager : MonoBehaviour
             {
                 if (!_enemySlotsFilled[i])
                 {
-                    spawn.transform.position = _enemySpawnSlots[i].position;
+                    StartCoroutine(MoveCreature(spawn, _enemySpawnSlots[i].position, 180));
                     spawn.GetComponent<Creature>().boardIndex = i;
                     spawn.GetComponent<Creature>().isEnemy = true;
                     spawn.GetComponent<Creature>().OnDeath += OnCreatureDeath;
@@ -82,7 +85,7 @@ public class SpawnManager : MonoBehaviour
             {
                 Creature c = friendlySpawns[i].GetComponent<Creature>();
                 c.boardIndex = i;
-                c.transform.position = _friendlySpawnSlots[i].position;
+                StartCoroutine(MoveCreature(c.gameObject, _friendlySpawnSlots[i].position, 180));
                 _friendlySlotsFilled[i] = true;
             }
 
@@ -104,7 +107,7 @@ public class SpawnManager : MonoBehaviour
             {
                 Creature c = enemySpawns[i].GetComponent<Creature>();
                 c.boardIndex = i;
-                c.transform.position = _enemySpawnSlots[i].position;
+                StartCoroutine(MoveCreature(c.gameObject, _enemySpawnSlots[i].position, 180));
                 _enemySlotsFilled[i] = true;
             }
 
@@ -123,7 +126,6 @@ public class SpawnManager : MonoBehaviour
         if (creature.canAttack)
         {
             Debug.Log("Select a target");
-            _playerTurnState.targeting = true;
             StartCoroutine(CreatureAttackTarget(creature));
         }
         else
@@ -142,11 +144,18 @@ public class SpawnManager : MonoBehaviour
     {
         if (!creature.isEnemy)
         {
+            _playerTurnState.targetingAttack = true;
             yield return StartCoroutine(WaitForTarget());
 
             IDamageable target = TargetController.CurrentTarget as IDamageable;
-            if (target.IsEnemy())
+            if (target != null && target.IsEnemy())
             {
+                creature.canAttack = false;
+                _playerTurnState.targetingAttack = false;
+                yield return StartCoroutine(MoveCreature(creature.gameObject, TargetController.CurrentTarget.GetPosition(), 180));
+                _audioSource.Play();
+                yield return StartCoroutine(MoveCreature(creature.gameObject, _friendlySpawnSlots[creature.boardIndex].position, 180));
+
                 target.TakeDamage(creature.Attack);
 
                 Creature enemyCreature = target as Creature;
@@ -154,22 +163,27 @@ public class SpawnManager : MonoBehaviour
                 {
                     creature.TakeDamage(enemyCreature.Attack);
                 }
-
-                creature.canAttack = false;
             }
             else
+            {
+                _playerTurnState.targetingAttack = false;
                 Debug.Log("Invalid target");
+            }
         }
         else
         {
             IDamageable target = Player.instance as IDamageable;
+            ITargetable targetPos = target as ITargetable;
+            
+            yield return StartCoroutine(MoveCreature(creature.gameObject, targetPos.GetPosition(), 180));
+            _audioSource.Play();
+            yield return StartCoroutine(MoveCreature(creature.gameObject, _enemySpawnSlots[creature.boardIndex].position, 180));
+
             target.TakeDamage(creature.Attack);
             creature.canAttack = false;
 
             Debug.Log(creature.name + " attacked the player for " + creature.Attack + " damage.");
         }
-
-        _playerTurnState.targeting = false;
     }
 
     public IEnumerator EnemyAttacks()
@@ -188,5 +202,17 @@ public class SpawnManager : MonoBehaviour
     {
         Debug.Log(creature.name + " died");
         RemoveSpawn(creature);
+    }
+
+    IEnumerator MoveCreature(GameObject creature, Vector3 pos, int duration)
+    {
+        int elapsedFrames = 0;
+        while (creature.transform.position != pos)
+        {
+            float t = (float)elapsedFrames / duration;
+            creature.transform.position = Vector3.Lerp(creature.transform.position, pos, t);
+            elapsedFrames++;
+            yield return null;
+        }
     }
 }

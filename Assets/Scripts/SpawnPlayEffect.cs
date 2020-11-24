@@ -13,16 +13,18 @@ public class SpawnPlayEffect : CardEffect
 
         if (worldObject != null)
         {
-            Vector3 spawnLocation = worldObject.transform.position;
-            GameObject newGameObject = Instantiate(_prefabToSpawn, spawnLocation, Quaternion.identity);
-
+            Vector3 spawnLocation;
             PlayerTurnCardGameState playerTurn = StateMachine.CurrentState as PlayerTurnCardGameState;
             if (playerTurn != null)
             {
+                spawnLocation = Player.instance.transform.position;
+                GameObject newGameObject = Instantiate(_prefabToSpawn, spawnLocation, Quaternion.identity);
                 SpawnManager.instance.AddSpawn(newGameObject, false);
             }
             else
             {
+                spawnLocation = Opponent.instance.transform.position;
+                GameObject newGameObject = Instantiate(_prefabToSpawn, spawnLocation, Quaternion.identity);
                 SpawnManager.instance.AddSpawn(newGameObject, true);
             }
         }

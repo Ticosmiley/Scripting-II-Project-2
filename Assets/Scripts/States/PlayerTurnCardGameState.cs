@@ -1,14 +1,19 @@
 ﻿using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerTurnCardGameState : CardGameState
 {
     [SerializeField] TextMeshProUGUI _playerTurnTextUI = null;
     [SerializeField] DeckTester _tester;
     [SerializeField] SpawnManager _spawnManager;
+    [SerializeField] GameObject _endTurnButton;
 
     public int playerTurnCount = 0;
     public bool targeting = false;
+    public bool targetingAttack = false;
+
+    RaycastHit hit;
 
     public override void Enter()
     {
@@ -37,11 +42,10 @@ public class PlayerTurnCardGameState : CardGameState
     {
         if (Input.GetMouseButtonDown(0))
         {
-            RaycastHit hit;
             if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit))
             {
                 CardObject card = hit.collider.gameObject.GetComponent<CardObject>();
-                if (card != null && !targeting)
+                if (card != null && !(targeting || targetingAttack) && !card.Card.Played)
                 {
                     Debug.Log("Playing card " + card.Card.Name);
                     _tester.currentCard = card.Index;
@@ -56,18 +60,28 @@ public class PlayerTurnCardGameState : CardGameState
                 }
 
                 Creature creature = hit.collider.gameObject.GetComponent<Creature>();
-                if (creature != null && !creature.isEnemy && !targeting)
+                if (creature != null && !creature.isEnemy && !(targeting || targetingAttack))
                 {
                     Debug.Log(creature.name + " selected");
                     _spawnManager.CreatureAttack(creature.boardIndex);
                 }
             }
         }
+
+        if (!CheckForCreatureAttack() && !CheckForPlayableCard())
+        {
+            _endTurnButton.GetComponent<EndTurnButton>().activated = true;
+        }
+        else
+        {
+            _endTurnButton.GetComponent<EndTurnButton>().activated = false;
+        }
     }
 
     public override void Exit()
     {
         _playerTurnTextUI.gameObject.SetActive(false);
+        _endTurnButton.GetComponent<EndTurnButton>().activated = false;
         StateMachine.Input.PressedConfirm -= OnPressedConfirm;
         Player.instance.OnPlayerDeath -= OnPlayerDeath;
         Opponent.instance.OnOpponentDeath -= OnOpponentDeath;
@@ -88,5 +102,29 @@ public class PlayerTurnCardGameState : CardGameState
     void OnOpponentDeath()
     {
         StateMachine.ChangeState<GameEndCardGameState>();
+    }
+
+    bool CheckForPlayableCard()
+    {
+        for (int i = 0; i < _tester.PlayerHand.Count; i++)
+        {
+            if (_tester.PlayerHand.GetCard(i).Cost <= Player.instance.currentMana)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    bool CheckForCreatureAttack()
+    {
+        for (int i = 0; i < _spawnManager.friendlySpawns.Count; i++)
+        {
+            if (_spawnManager.friendlySpawns[i].GetComponent<Creature>().canAttack)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }

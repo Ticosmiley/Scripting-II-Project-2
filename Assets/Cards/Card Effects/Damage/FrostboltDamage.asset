@@ -13,3 +13,5 @@ MonoBehaviour:
   m_Name: FrostboltDamage
   m_EditorClassIdentifier: 
   _damageAmount: 3
+  _projectile: {fileID: 3606842140836374735, guid: 7efb86909660d9045ac02657afb38b1c,
+    type: 3}

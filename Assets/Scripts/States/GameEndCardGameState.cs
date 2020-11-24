@@ -1,9 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class GameEndCardGameState : CardGameState
 {
+    public event Action GameEnd = delegate { };
+    
     [SerializeField] GameObject _gameVisuals;
     [SerializeField] PlayerHandView _playerHandView;
     [SerializeField] SpawnManager _spawnManager;
@@ -17,10 +20,13 @@ public class GameEndCardGameState : CardGameState
         Player.instance.gameObject.SetActive(false);
         GetComponent<PlayerTurnCardGameState>().playerTurnCount = 0;
 
+        _spawnManager.StopAllCoroutines();
+
         for (int i = 0; i < 5; i++)
         {
             _playerHandView._slotsFilled[i] = false;
             _spawnManager._friendlySlotsFilled[i] = false;
+            _spawnManager._enemySlotsFilled[i] = false;
         }
         foreach (var item in _playerHandView._cardObjects)
         {

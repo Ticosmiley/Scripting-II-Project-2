@@ -41,7 +41,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5708853460198828789}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -84,6 +84,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a7c60d918eb4e2c44b5de2cdcd3572aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  boardIndex: 0
+  isEnemy: 0
+  canAttack: 0
   _data: {fileID: 11400000, guid: 0a5abbb10ad15b040bfb3ac8ce7d1499, type: 2}
 --- !u!33 &8133199228838617780
 MeshFilter:

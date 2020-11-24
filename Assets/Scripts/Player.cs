@@ -65,4 +65,9 @@ public class Player : MonoBehaviour, ITargetable, IDamageable
     {
         return false;
     }
+
+    public Vector3 GetPosition()
+    {
+        return transform.position;
+    }
 }

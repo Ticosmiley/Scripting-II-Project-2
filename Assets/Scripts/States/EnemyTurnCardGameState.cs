@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using TMPro;
 
 public class EnemyTurnCardGameState : CardGameState
 {
     public static event Action EnemyTurnBegan;
     public static event Action EnemyTurnEnded;
 
+    [SerializeField] TextMeshProUGUI _enemyThinkingTextUI;
     [SerializeField] EnemyDeckTester _tester;
     [SerializeField] SpawnManager _spawnManager;
     [SerializeField] float _pauseDuration = 1.5f;
@@ -16,6 +18,8 @@ public class EnemyTurnCardGameState : CardGameState
     {
         Player.instance.OnPlayerDeath += OnPlayerDeath;
         Opponent.instance.OnOpponentDeath += OnOpponentDeath;
+
+        _enemyThinkingTextUI.gameObject.SetActive(true);
 
         Debug.Log("Enemy Turn: ...Enter");
         EnemyTurnBegan?.Invoke();
@@ -36,6 +40,7 @@ public class EnemyTurnCardGameState : CardGameState
 
     public override void Exit()
     {
+        _enemyThinkingTextUI.gameObject.SetActive(false);
         Player.instance.OnPlayerDeath -= OnPlayerDeath;
         Opponent.instance.OnOpponentDeath -= OnOpponentDeath;
 

@@ -13,6 +13,8 @@ public class PlayerHandView : MonoBehaviour
     Deck<AbilityCard> _playerHand;
 
     [SerializeField] Transform[] _cardSlots;
+    [SerializeField] Transform _drawPile;
+    [SerializeField] Transform _discardPile;
     public bool[] _slotsFilled = new bool[] { false, false, false, false, false };
     public List<GameObject> _cardObjects = new List<GameObject>();
     public List<AbilityCardView> _cardViews = new List<AbilityCardView>();
@@ -24,7 +26,7 @@ public class PlayerHandView : MonoBehaviour
 
     public void AddCard(AbilityCard card)
     {
-        GameObject newCard = Instantiate(_cardObject);
+        GameObject newCard = Instantiate(_cardObject, _drawPile.position, Quaternion.identity);
         AbilityCardView newACView = Instantiate(_cardUI).GetComponent<AbilityCardView>();
         newACView.transform.SetParent(_canvas.transform, false);
         newACView.Display(card, newCard.transform);
@@ -34,9 +36,9 @@ public class PlayerHandView : MonoBehaviour
         {
             if (!_slotsFilled[i])
             {
-                newCard.transform.position = _cardSlots[i].position;
                 newCard.GetComponent<CardObject>().Setup(card, i);
                 _cardObjects.Add(newCard);
+                StartCoroutine(MoveCard(newCard, _cardSlots[i].position));
                 _cardViews.Add(newACView);
                 _slotsFilled[i] = true;
                 break;
@@ -44,8 +46,10 @@ public class PlayerHandView : MonoBehaviour
         }
     }
 
-    public void RemoveCard(int index)
+    public IEnumerator RemoveCard(int index)
     {
+        yield return StartCoroutine(MoveCard(_cardObjects[index], _discardPile.position));
+
         Destroy(_cardObjects[index]);
         _cardObjects.RemoveAt(index);
         Destroy(_cardViews[index].gameObject);
@@ -56,7 +60,7 @@ public class PlayerHandView : MonoBehaviour
         { 
             CardObject obj = _cardObjects[i].GetComponent<CardObject>();
             obj.Setup(obj.Card, i);
-            obj.transform.position = _cardSlots[i].position;
+            StartCoroutine(MoveCard(obj.gameObject, _cardSlots[i].position));
             _slotsFilled[i] = true;
         }
 
@@ -66,6 +70,18 @@ public class PlayerHandView : MonoBehaviour
             {
                 _slotsFilled[i] = false;
             }
+        }
+    }
+
+    IEnumerator MoveCard(GameObject card, Vector3 pos)
+    {
+        int elapsedFrames = 0;
+        while (card.transform.position != pos)
+        {
+            float t = (float)elapsedFrames / 180f;
+            card.transform.position = Vector3.Lerp(card.transform.position, pos, t);
+            elapsedFrames++;
+            yield return null;
         }
     }
 }

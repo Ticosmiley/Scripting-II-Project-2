@@ -16,6 +16,14 @@ public class SpawnView : MonoBehaviour
         if (_creature != null)
         {
             GetComponent<RectTransform>().position = Camera.main.WorldToScreenPoint(_creature.gameObject.transform.position);
+            if (_creature.Selected)
+            {
+                transform.GetChild(0).gameObject.SetActive(true);
+            }
+            else
+            {
+                transform.GetChild(0).gameObject.SetActive(false);
+            }
         }
     }
 
